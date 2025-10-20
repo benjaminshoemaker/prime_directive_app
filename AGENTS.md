@@ -1,13 +1,13 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `src/app/(public)/` — App Router entrypoints: landing, intake steps (`intake/[step]/`), loading, results, privacy.
-- `src/components/` — Tailwind-based UI primitives (buttons, StepCard, RoadmapRow, Modal, etc.).
-- `src/lib/decision/` — Plan catalog, types, feature flags, and `buildPlan` engine.
-- `src/lib/state/` — Zustand store plus intake step metadata.
-- `src/lib/utils/` — Shared helpers (`cn`, `sleep`).
-- `assets/` & `src/figma/` — Original Figma export for reference; excluded from lint/typecheck.
-- Tests live alongside sources (e.g., `src/lib/state/store.test.ts`; `src/components/StepCard.test.tsx`).
+- `src/app/(public)/` — App Router entrypoints: landing, Figma-aligned intake (`intake/[step]/`), loading, results, privacy.
+- `src/components/` — Tailwind primitives and overlays (buttons, `StepDetailOverlay`, accordion, modal shell).
+- `src/lib/decision/` — Step registry, feature flags, and `buildPlan`.
+- `src/lib/state/` — Zustand store with session storage + intake metadata and slider state.
+- `src/lib/utils/` — Shared helpers (`cn`).
+- `assets/`, `src/figma/` — Figma export for reference; excluded from lint/typecheck.
+- Tests colocated with sources (e.g., `src/lib/state/store.test.ts`, `src/app/(public)/results/ResultsClient.test.tsx`).
 
 ## Build, Test, and Development Commands
 - `npm run dev` — Start Next.js dev server at `http://localhost:3000`.
@@ -17,17 +17,17 @@
 - `npm run test` — Jest + React Testing Library suite with `ts-jest`.
 
 ## Coding Style & Naming Conventions
-- TypeScript + React with strict mode (`tsconfig.json`); prefer explicit types.
-- TailwindCSS for styling; reuse classes/colors defined in `tailwind.config.ts`.
-- Components and modules use PascalCase (e.g., `StepCard.tsx`); hooks/selectors camelCase.
-- Run `npm run lint` before committing; it enforces Next.js best practices and ignores `src/figma/**`.
-- Follow existing folder segmentation when adding screens/modules.
+- TypeScript + React with strict mode; prefer explicit types.
+- TailwindCSS using tokens from `tailwind.config.ts`; keep class stacks aligned with Figma export.
+- Components/modules PascalCase; hooks/selectors camelCase.
+- Run `npm run lint` prior to commits (Figma export under `src/figma/**` is ignored).
+- Follow existing folder segmentation for new UI/state modules.
 
 ## Testing Guidelines
-- Frameworks: Jest, React Testing Library, Zustand store tests.
-- Add `.test.ts`/`.test.tsx` colocated with implementation.
-- Ensure new store actions or UI flows have coverage mirroring existing tests (`store.test.ts`, `Roadmap.integration.test.tsx`).
-- Tests should pass via `npm run test` before PR submission; no snapshot output committed.
+- Frameworks: Jest + React Testing Library; Zustand store reducer tests.
+- Place `.test.ts`/`.test.tsx` alongside implementation.
+- Mirror existing coverage expectations (`store.test.ts`, `ResultsClient.test.tsx`, `StepDetailOverlay.test.tsx`).
+- Run `npm run test -- --coverage` when significant UI/state changes land; avoid snapshots unless justified.
 
 ## Commit & Pull Request Guidelines
 - Commit messages: imperative summary (~50 chars) followed by optional body (e.g., `feat: add roadmap modal`).
@@ -35,3 +35,12 @@
 - Pull requests should include: summary of changes, testing notes (`npm run lint`, `npm run test`), relevant screenshots/GIFs for UI work, and linked issue IDs if applicable.
 - Verify `npm run lint`, `npm run typecheck`, and `npm run test` locally before requesting review.
 
+## UI & Interaction Notes
+- Learn More launches the full-screen `StepDetailOverlay`; keep copy/structure synchronized with Figma definitions.
+- Intake slider state persists via `monthlyIncomeEstimate` in Zustand; update store tests when adding new actions.
+- Confetti events (`canvas-confetti`) are mocked in tests; add similar mocks if firing animations elsewhere.
+
+## Dependencies & Animations
+- Motion uses `framer-motion`; reusable variants live inline per component.
+- Confetti lives in UI client modules; import only inside client components to avoid SSR issues.
+- Keep new dependencies declared in `package.json` and typed via `@types/*` when available.
